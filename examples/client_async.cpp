@@ -68,7 +68,7 @@ int main() {
                             << "Data change notification:\n"
                             << "- subscription id: " << subId << "\n"
                             << "- monitored item id: " << monId << "\n"
-                            << "- timestamp: " << dv.sourceTimestamp() << std::endl;
+                            << "- value: " << opcua::toString(dv) << std::endl;
                     },
                     {},  // delete callback
                     [](opcua::MonitoredItemCreateResult& result) {

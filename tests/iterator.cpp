@@ -1,6 +1,7 @@
-#include <doctest/doctest.h>
 #include <list>
 #include <vector>
+
+#include <doctest/doctest.h>
 
 #include "open62541pp/detail/iterator.hpp"
 

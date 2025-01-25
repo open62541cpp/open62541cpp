@@ -1,6 +1,6 @@
-#include <doctest/doctest.h>
-
 #include <algorithm>  // any_of
+
+#include <doctest/doctest.h>
 
 #include "open62541pp/config.hpp"
 #include "open62541pp/node.hpp"

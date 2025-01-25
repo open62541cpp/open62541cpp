@@ -89,8 +89,10 @@ PREDEFINED             = UA_ENABLE_DA \
                          UA_ENABLE_SUBSCRIPTIONS \
                          UA_ENABLE_SUBSCRIPTIONS_EVENTS \
                          UA_ENABLE_TYPEDESCRIPTION \
-                         UAPP_HAS_CREATE_CERTIFICATE=1 \
-                         UAPP_HAS_ASYNC_SUBSCRIPTIONS=1
+                         UAPP_HAS_TOSTRING=1 \
+                         UAPP_HAS_DATAACCESS=1 \
+                         UAPP_HAS_ASYNC_SUBSCRIPTIONS=1 \
+                         UAPP_HAS_CREATE_CERTIFICATE=1
 
 # Dot diagrams
 HAVE_DOT               = YES

@@ -55,7 +55,7 @@ int main() {
                 << "Event notification:\n"
                 << "- subscription id:   " << item.subscriptionId() << "\n"
                 << "- monitored item id: " << item.monitoredItemId() << "\n"
-                << "- node id:           " << item.nodeId().toString() << "\n"
+                << "- node id:           " << opcua::toString(item.nodeId()) << "\n"
                 << "- attribute id:      " << static_cast<int>(item.attributeId()) << "\n";
 
             const auto& time = eventFields.at(0).scalar<opcua::DateTime>();

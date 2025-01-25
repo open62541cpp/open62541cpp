@@ -68,7 +68,8 @@ PREDEFINED             = UA_ENABLE_DA \
                          UA_ENABLE_PUBSUB \
                          UA_ENABLE_QUERY \
                          UA_ENABLE_SUBSCRIPTIONS \
-                         UA_ENABLE_SUBSCRIPTIONS_EVENTS
+                         UA_ENABLE_SUBSCRIPTIONS_EVENTS \
+                         UA_ENABLE_TYPEDESCRIPTION
 
 # Dot diagrams
 HAVE_DOT               = NO

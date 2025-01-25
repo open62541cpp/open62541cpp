@@ -272,17 +272,14 @@ TEST_CASE("Guid") {
         CHECK(Guid::random() != Guid::random());
     }
 
+#if UAPP_HAS_TOSTRING
     SUBCASE("toString") {
-        {
-            const Guid guid{};
-            CHECK(guid.toString() == "00000000-0000-0000-0000-000000000000");
-        }
-        {
-            const Guid guid{
-                0x12345678, 0x1234, 0x5678, {0x12, 0x34, 0x56, 0x78, 0x90, 0xAB, 0xCD, 0xEF}
-            };
-            CHECK(guid.toString() == "12345678-1234-5678-1234-567890ABCDEF");
-        }
+        CHECK(::opcua::toString(Guid{}) == "00000000-0000-0000-0000-000000000000");
+
+        const Guid guid{
+            0x12345678, 0x1234, 0x5678, {0x12, 0x34, 0x56, 0x78, 0x90, 0xAB, 0xCD, 0xEF}
+        };
+        CHECK(::opcua::toString(guid) == "12345678-1234-5678-1234-567890abcdef");
     }
 
     SUBCASE("ostream overload") {
@@ -290,6 +287,7 @@ TEST_CASE("Guid") {
         ss << Guid{};
         CHECK(ss.str() == "00000000-0000-0000-0000-000000000000");
     }
+#endif
 }
 
 TEST_CASE("DateTime") {
@@ -432,15 +430,15 @@ TEST_CASE("NodeId") {
         CHECK(NodeId(0, 1).hash() != NodeId(1, 1).hash());
     }
 
+#if UAPP_HAS_TOSTRING
     SUBCASE("toString") {
-        CHECK(NodeId(0, 13).toString() == "i=13");
-        CHECK(NodeId(10, 1).toString() == "ns=10;i=1");
-        CHECK(NodeId(10, "Hello:World").toString() == "ns=10;s=Hello:World");
-        CHECK(NodeId(0, Guid()).toString() == "g=00000000-0000-0000-0000-000000000000");
-#if UAPP_OPEN62541_VER_GE(1, 1)
-        CHECK(NodeId(1, ByteString("test123")).toString() == "ns=1;b=dGVzdDEyMw==");
-#endif
+        CHECK(::opcua::toString(NodeId(0, 13)) == "i=13");
+        CHECK(::opcua::toString(NodeId(10, 1)) == "ns=10;i=1");
+        CHECK(::opcua::toString(NodeId(10, "Hello:World")) == "ns=10;s=Hello:World");
+        CHECK(::opcua::toString(NodeId(0, Guid())) == "g=00000000-0000-0000-0000-000000000000");
+        CHECK(::opcua::toString(NodeId(1, ByteString("test123"))) == "ns=1;b=dGVzdDEyMw==");
     }
+#endif
 
     SUBCASE("std::hash specialization") {
         const NodeId id(1, "Test123");
@@ -470,17 +468,19 @@ TEST_CASE("ExpandedNodeId") {
         CHECK(ExpandedNodeId().hash() != idFull.hash());
     }
 
+#if UAPP_HAS_TOSTRING
     SUBCASE("toString") {
-        CHECK_EQ(ExpandedNodeId({2, 10157}).toString(), "ns=2;i=10157");
+        CHECK_EQ(::opcua::toString(ExpandedNodeId({2, 10157})), "ns=2;i=10157");
         CHECK_EQ(
-            ExpandedNodeId({2, 10157}, "http://test.org/UA/Data/", 0).toString(),
-            "nsu=http://test.org/UA/Data/;ns=2;i=10157"
+            ::opcua::toString(ExpandedNodeId({2, 10157}, "http://test.org/UA/Data/", 0)),
+            "nsu=http://test.org/UA/Data/;i=10157"
         );
         CHECK_EQ(
-            ExpandedNodeId({2, 10157}, "http://test.org/UA/Data/", 1).toString(),
-            "svr=1;nsu=http://test.org/UA/Data/;ns=2;i=10157"
+            ::opcua::toString(ExpandedNodeId({2, 10157}, "http://test.org/UA/Data/", 1)),
+            "svr=1;nsu=http://test.org/UA/Data/;i=10157"
         );
     }
+#endif
 
     SUBCASE("std::hash specialization") {
         CHECK(std::hash<ExpandedNodeId>()(idLocal) == idLocal.hash());
@@ -1151,8 +1151,8 @@ TEST_CASE("NumericRange") {
     }
 
     SUBCASE("toString") {
-        CHECK(NumericRange({{1, 1}}).toString() == "1");
-        CHECK(NumericRange({{1, 2}}).toString() == "1:2");
-        CHECK(NumericRange({{1, 2}, {0, 3}, {5, 5}}).toString() == "1:2,0:3,5");
+        CHECK(::opcua::toString(NumericRange({{1, 1}})) == "1");
+        CHECK(::opcua::toString(NumericRange({{1, 2}})) == "1:2");
+        CHECK(::opcua::toString(NumericRange({{1, 2}, {0, 3}, {5, 5}})) == "1:2,0:3,5");
     }
 }
