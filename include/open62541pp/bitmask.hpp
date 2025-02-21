@@ -5,7 +5,7 @@
 namespace opcua {
 
 /**
- * \addtogroup BitmaskAbstraction Bitmask abstraction
+ * @addtogroup BitmaskAbstraction Bitmask abstraction
  * @{
  */
 

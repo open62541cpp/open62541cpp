@@ -1,7 +1,9 @@
 #pragma once
 
 #include <cstdint>
+#include <functional>  // invoke
 #include <iterator>  // make_move_iterator
+#include <memory>  // enable_shared_from_this, make_shared
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -323,15 +325,16 @@ auto unregisterNodesAsync(
 
 /* ----------------------------------- Non-standard functions ----------------------------------- */
 
-/**
- * @ingroup Browse
- * @{
- */
+// default maxReferences arg of initial browse request within browseAll, primarily for testing
+#ifndef UAPP_BROWSE_ALL_MAX_REFERENCES
+#define UAPP_BROWSE_ALL_MAX_REFERENCES 0U  // NOLINT(*macro-usage)
+#endif
 
 /**
  * Discover all the references of a specified node (without calling @ref browseNext).
  * @param connection Instance of type Server or Client
  * @param bd Browse description
+ * @ingroup Browse
  */
 template <typename T>
 Result<std::vector<ReferenceDescription>> browseAll(T& connection, const BrowseDescription& bd) {
@@ -343,13 +346,71 @@ Result<std::vector<ReferenceDescription>> browseAll(T& connection, const BrowseD
             std::make_move_iterator(result.references().end())
         );
     };
-    BrowseResult result = browse(connection, bd, 0U);
+    BrowseResult result = browse(connection, bd, UAPP_BROWSE_ALL_MAX_REFERENCES);
     handler(result);
     while (!result.continuationPoint().empty()) {
         result = browseNext(connection, false, result.continuationPoint());
         handler(result);
     }
     return {std::move(refs), result.statusCode()};
+}
+
+/**
+ * @copydoc browseAll
+ * @param token @completiontoken{void(Result<std::vector<ReferenceDescription>>&)}
+ * @return @asyncresult{Result<std::vector<ReferenceDescription>>}
+ * @ingroup Browse
+ */
+template <typename CompletionToken>
+auto browseAllAsync(Client& connection, const BrowseDescription& bd, CompletionToken&& token) {
+    return asyncInitiate<Result<std::vector<ReferenceDescription>>>(
+        [&](auto&& handler) {
+            using HandlerType = std::remove_reference_t<decltype(handler)>;
+            struct RecursiveHandler : std::enable_shared_from_this<RecursiveHandler> {
+                RecursiveHandler(Client& innerClient, HandlerType innerHandler)
+                    : client(innerClient),
+                      handler(std::move(innerHandler)) {}
+
+                void handle(BrowseResult& result) {
+                    refs.insert(
+                        refs.end(),
+                        std::make_move_iterator(result.getReferences().begin()),
+                        std::make_move_iterator(result.getReferences().end())
+                    );
+                    if (result.getContinuationPoint().empty()) {
+                        Result refsResult(std::move(refs), result.getStatusCode());
+                        std::invoke(handler, refsResult);
+                    } else {
+                        browseNextAsync(
+                            client,
+                            false,
+                            result.getContinuationPoint(),
+                            [self = this->shared_from_this()](BrowseResult& innerResult) {
+                                return self->handle(innerResult);
+                            }
+                        );
+                    }
+                }
+
+                Client& client;  // NOLINT(*ref-data-members)
+                HandlerType handler;
+                std::vector<ReferenceDescription> refs;
+            };
+
+            auto handlerPtr = std::make_shared<RecursiveHandler>(
+                connection, std::forward<decltype(handler)>(handler)
+            );
+            browseAsync(
+                connection,
+                bd,
+                UAPP_BROWSE_ALL_MAX_REFERENCES,
+                [handlerPtr = std::move(handlerPtr)](BrowseResult& result) {
+                    handlerPtr->handle(result);
+                }
+            );
+        },
+        std::forward<CompletionToken>(token)
+    );
 }
 
 /**
@@ -365,17 +426,13 @@ Result<std::vector<ReferenceDescription>> browseAll(T& connection, const BrowseD
  *
  * @param connection Instance of type Server
  * @param bd Browse description
- * @see UA_Server_browseRecursive
  * @ingroup Browse
+ * @see UA_Server_browseRecursive
  */
 [[deprecated("will be removed in the future, use UA_Server_browseRecursive instead")]]
 Result<std::vector<ExpandedNodeId>> browseRecursive(
     Server& connection, const BrowseDescription& bd
 );
-
-/**
- * @}
- */
 
 /**
  * @}
