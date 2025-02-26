@@ -188,6 +188,7 @@ Please check out the open62541 build options here: https://www.open62541.org/doc
 Open62541pp provides additional build options:
 
 - `UAPP_INTERNAL_OPEN62541`: Use internal open62541 library if `ON` or search for installed open62541 library if `OFF`
+- `UAPP_ENABLE_NODESETLOADER`: Enable nodeset loader to load `NodeSet2.xml` files at runtime
 - `UAPP_BUILD_DOCUMENTATION`: Build documentation
 - `UAPP_BUILD_EXAMPLES`: Build examples for `examples` directory
 - `UAPP_BUILD_TESTS`: Build unit tests

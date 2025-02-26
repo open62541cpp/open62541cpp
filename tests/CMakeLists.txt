@@ -17,6 +17,7 @@ add_executable(
     plugin_accesscontrol.cpp
     plugin_create_certificate.cpp
     plugin_log.cpp
+    plugin_nodesetloader.cpp
     pluginadapter.cpp
     result.cpp
     scope.cpp
@@ -53,6 +54,11 @@ set_target_properties(
     PROPERTIES
         OUTPUT_NAME tests
         CXX_CLANG_TIDY ""  # disable clang-tidy
+)
+target_compile_definitions(
+    open62541pp_tests
+    PRIVATE
+        UAPP_NODESET_DIR="${PROJECT_SOURCE_DIR}/3rdparty/open62541/deps/ua-nodeset"
 )
 # fix LNK4096 error with MSVC
 # https://learn.microsoft.com/en-us/cpp/error-messages/tool-errors/linker-tools-warning-lnk4098

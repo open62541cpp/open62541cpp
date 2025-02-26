@@ -178,6 +178,7 @@ add_library(
     src/plugin/accesscontrol_default.cpp
     src/plugin/create_certificate.cpp
     src/plugin/log.cpp
+    src/plugin/nodesetloader.cpp
     src/plugin/nodestore.cpp
     src/server.cpp
     src/services_attribute.cpp
@@ -208,6 +209,46 @@ target_link_libraries(
         Threads::Threads
         $<BUILD_INTERFACE:open62541pp_project_options>
 )
+
+# open62541-nodeset-loader
+option(UAPP_ENABLE_NODESETLOADER "Enable nodeset loader" OFF)
+if(UAPP_ENABLE_NODESETLOADER)
+    # variable OPEN62541_VERSION required by open62541-nodeset-loader
+    get_target_property(OPEN62541_VERSION open62541::open62541 VERSION)
+    set(NODESETLOADER_ENABLE_BUILD_INTO_OPEN62541 ON CACHE BOOL "")
+    add_subdirectory(3rdparty/open62541-nodeset-loader EXCLUDE_FROM_ALL)
+
+    # build and link as object library
+    enable_language(C)
+    add_library(open62541pp_nodesetloader OBJECT ${NODESETLOADER_SOURCES})
+    target_include_directories(
+        open62541pp_nodesetloader
+        PUBLIC
+            ${NODESETLOADER_PUBLIC_INCLUDES}
+        PRIVATE
+            ${NODESETLOADER_PRIVATE_INCLUDES}
+    )
+    target_link_libraries(
+        open62541pp_nodesetloader
+        PUBLIC
+            open62541::open62541
+        PRIVATE
+            ${NODESETLOADER_DEPS_LIBS}
+    )
+    target_compile_definitions(
+        open62541pp_nodesetloader
+        PUBLIC
+            NODESETLOADER_CLEANUP_CUSTOM_DATATYPES=1
+    )
+    set_target_properties(
+        open62541pp_nodesetloader
+        PROPERTIES
+            C_VISIBILITY_PRESET hidden
+            POSITION_INDEPENDENT_CODE ON  # required for shared library
+    )
+    target_link_libraries(open62541pp PRIVATE $<BUILD_INTERFACE:open62541pp_nodesetloader>
+    )
+endif()
 
 # tests
 option(UAPP_BUILD_TESTS "Build unit tests" OFF)
