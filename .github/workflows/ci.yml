@@ -151,6 +151,7 @@ jobs:
           -DUAPP_BUILD_TESTS=ON
           -DUAPP_BUILD_EXAMPLES=ON
           -DUAPP_ENABLE_COVERAGE=${{ matrix.config.coverage && matrix.build_type == 'Debug' }}
+          -DUAPP_ENABLE_NODESETLOADER=${{ runner.os == 'Windows' && 'OFF' || 'ON' }}
           -DUAPP_WARNINGS_AS_ERRORS=ON
           ${{ matrix.config.flags }}
 

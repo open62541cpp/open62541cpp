@@ -91,7 +91,8 @@ PREDEFINED             = UA_ENABLE_DA \
                          UA_ENABLE_TYPEDESCRIPTION \
                          UAPP_HAS_PARSING=1 \
                          UAPP_HAS_CREATE_CERTIFICATE=1 \
-                         UAPP_HAS_ASYNC_SUBSCRIPTIONS=1
+                         UAPP_HAS_ASYNC_SUBSCRIPTIONS=1 \
+                         UAPP_HAS_NODESETLOADER=1
 
 # Dot diagrams
 HAVE_DOT               = YES
